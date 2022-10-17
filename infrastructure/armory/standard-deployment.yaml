@@ -1,0 +1,37 @@
+version: v1
+kind: kubernetes
+application: Potato Facts
+
+targets:
+  staging:
+    account: armory-hosted-services-prod-agent
+    namespace: armory-hosted-services-staging
+    strategy: staging-strategy
+  prod:
+    account: armory-hosted-services-prod-agent
+    namespace: armory-hosted-services-prod
+    strategy: prod-strategy
+    constraints:
+      dependsOn: ["staging"]
+
+manifests:
+  - path: /build/manifests/staging-manifests.yaml
+    targets: ["staging"]
+  - path: /build/manifests/prod-manifests.yaml
+    targets: ["prod"]
+
+strategies:
+  staging-strategy:
+    canary:
+      steps:
+        - setWeight:
+            weight: 100
+        - pause:
+            untilApproved: true
+  prod-strategy:
+    canary:
+      steps:
+        - setWeight:
+            weight: 100
+        - pause:
+            untilApproved: true

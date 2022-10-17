@@ -1,0 +1,25 @@
+name: sandbox
+
+sendLogsToNewRelic: false
+enableNewRelicAgent: false
+
+prometheus:
+  enabled: true
+
+ports:
+  http: 9001
+  metrics: 3001
+
+probes:
+  liveness:
+    enabled: true
+    path: /health/liveness
+    port: 9001
+    initialDelaySeconds: 15
+    periodSeconds: 20
+  readiness:
+    enabled: true
+    path: /health/readiness
+    port: 9001
+    initialDelaySeconds: 3
+    periodSeconds: 3
