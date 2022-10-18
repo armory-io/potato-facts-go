@@ -22,18 +22,15 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - name: Login to Artifactory
+      - name: Login to Docker Hub
         run: |
-          docker login -u ${{ secrets.ARTIFACTORY_USER }} -p ${{ secrets.ARTIFACTORY_TOKEN }} armory-docker-local.jfrog.io
+          docker login -u '${{ secrets.DOCKER_HUB_USER }}' -p '${{ secrets.DOCKER_HUB_PASS }}'
         shell: bash
 
       - name: Setup Go environment
         uses: actions/setup-go@v2.1.4
         with:
-          go-version: '1.18.1'
-
-      - name: Configure git for private modules
-        run: git config --global url."https://x-access-token:${{ secrets.ARMORY_PLATFORM_GITHUB_PAT_TOKEN }}@github.com".insteadOf "https://github.com"
+          go-version: '1.19'
 
       - name: Build & Push
         env:
@@ -42,18 +39,3 @@ jobs:
           VERSION: ${{ github.event.release.tag_name }}
         run: |
           make build-linux docker push
-
-  scan-image:
-    name: CVE Image Scan
-    needs:
-      - build-and-publish-container
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Security Scan
-        uses: armory-io/aquasec-scan-action@v0.0.8
-        with:
-          url: https://aquasec.armory.io
-          registry: Artifactory
-          username: ${{ secrets.AQUA_USER }}
-          password: ${{ secrets.AQUA_PASSWORD }}
-          image: armory/${{ env.applicationName }}:${{ github.event.release.tag_name }}
