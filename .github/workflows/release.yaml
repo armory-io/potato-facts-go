@@ -14,26 +14,49 @@ jobs:
   create-release:
     name: Create Github Release
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.ARMORY_PLATFORM_GITHUB_PAT_TOKEN }}
     steps:
-      - name: Setup Go environment
-        uses: actions/setup-go@v2.1.4
-        with:
-          go-version: '1.19'
+      - name: Fetch Project
+        uses: actions/checkout@v2
 
-      - name: Configure git for private modules
-        run: git config --global url."https://x-access-token:${{ secrets.ARMORY_PLATFORM_GITHUB_PAT_TOKEN }}@github.com".insteadOf "https://github.com"
+      - name: Fetch full history
+        run: git fetch --prune --tags --unshallow
+        shell: bash
 
-      - uses: armory-io/infra-github-actions/create-release@master
+      - name: Bump version and push tag
+        id: push_tag
+        uses: mathieudutour/github-tag-action@v6.0
         with:
-          project_type: go
           github_token: ${{ secrets.ARMORY_PLATFORM_GITHUB_PAT_TOKEN }}
-          vault_addr: ${{ secrets.VAULT_ADDR }}
-          vault_token: ${{ secrets.VAULT_TOKEN }}
-          sonar_token: ${{ secrets.SONAR_TOKEN }}
-          sonar_host_url: ${{ secrets.SONAR_HOST_URL }}
-          artifactory_user: ${{ secrets.ARTIFACTORY_USER }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_TOKEN }}
-          check_command: make check
-          go-version: '1.19'
+          default_bump: patch
+
+      - name: Fetch Refresh
+        run: git fetch --prune --tags
+        shell: bash
+
+      - name: Generate Changelog
+        id: changelog
+        env:
+          NEW_TAG: ${{ steps.push_tag.outputs.new_tag }}
+          PREVIOUS_TAG: ${{ steps.push_tag.outputs.previous_tag }}
+        run: |
+          set mode -x
+          export CHANGELOG=`git log $NEW_TAG...$PREVIOUS_TAG --oneline`
+          echo "CHANGELOG=$CHANGELOG"
+          CHANGELOG="${CHANGELOG//$'%'/%25}"
+          CHANGELOG="${CHANGELOG//$'\n'/%0A}"
+          CHANGELOG="${CHANGELOG//$'\r'/%0D}"
+          echo ::set-output name=CHANGELOG::$(echo -e "${CHANGELOG}")
+        shell: bash
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ARMORY_PLATFORM_GITHUB_PAT_TOKEN }}
+        with:
+          tag_name: ${{ steps.push_tag.outputs.new_tag }}
+          release_name: ${{ steps.push_tag.outputs.new_version }}
+          body: |
+            ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: false
