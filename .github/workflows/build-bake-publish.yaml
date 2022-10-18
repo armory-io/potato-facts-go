@@ -37,7 +37,7 @@ jobs:
 
       - name: Build & Push
         env:
-          REGISTRY: armory-docker-local.jfrog.io
+          REGISTRY: index.docker.io
           REGISTRY_ORG: armory
           VERSION: ${{ github.event.release.tag_name }}
         run: |
