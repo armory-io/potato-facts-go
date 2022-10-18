@@ -66,6 +66,6 @@ jobs:
     steps:
       - uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: Deploy
+          workflow: Deploy With Armory
           token: ${{ secrets.ARMORY_PLATFORM_GITHUB_PAT_TOKEN }}
           inputs: '{ "imageTag": "${{ github.event.release.tag_name }}" }'
