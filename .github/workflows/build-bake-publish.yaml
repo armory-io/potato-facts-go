@@ -57,15 +57,3 @@ jobs:
           username: ${{ secrets.AQUA_USER }}
           password: ${{ secrets.AQUA_PASSWORD }}
           image: armory/${{ env.applicationName }}:${{ github.event.release.tag_name }}
-
-  deploy:
-    name: Trigger Deployment Workflow
-    runs-on: ubuntu-latest
-    needs:
-      - build-and-publish-container
-    steps:
-      - uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: Deploy With Armory
-          token: ${{ secrets.ARMORY_PLATFORM_GITHUB_PAT_TOKEN }}
-          inputs: '{ "imageTag": "${{ github.event.release.tag_name }}" }'
