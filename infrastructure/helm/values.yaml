@@ -1,4 +1,4 @@
-name: sandbox
+name: potatofacts
 
 sendLogsToNewRelic: false
 enableNewRelicAgent: false

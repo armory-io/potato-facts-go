@@ -3,7 +3,7 @@ module github.com/armory-io/potato-facts
 go 1.19
 
 require (
-	github.com/armory-io/go-commons v1.16.3
+	github.com/armory-io/go-commons v1.16.5
 	go.uber.org/fx v1.17.1
 	go.uber.org/zap v1.21.0
 )
