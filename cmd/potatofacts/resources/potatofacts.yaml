@@ -9,10 +9,6 @@ server:
     port: 9001
     ssl.enabled: false
 
-auth:
-  jwt:
-    jwt-keys-url: https://auth.cloud.armory.io/.well-known/jwks.json
-
 potato-facts:
   facts:
     - "A potato is about 80% water and 20% solid."

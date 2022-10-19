@@ -19,7 +19,14 @@ package main
 import (
 	"context"
 	"embed"
-	"github.com/armory-io/go-commons/application"
+	"github.com/armory-io/go-commons/iam"
+	"github.com/armory-io/go-commons/logging"
+	"github.com/armory-io/go-commons/management"
+	"github.com/armory-io/go-commons/management/info"
+	"github.com/armory-io/go-commons/metadata"
+	"github.com/armory-io/go-commons/metrics"
+	"github.com/armory-io/go-commons/server"
+	"github.com/armory-io/go-commons/tracing"
 	"github.com/armory-io/potato-facts/internal/potatofacts"
 	"go.uber.org/fx"
 	"os"
@@ -43,7 +50,19 @@ func main() {
 			// Base app context provider
 			func() context.Context { return ctx },
 		),
-		application.ModuleV2,
+		logging.Module,
+		metadata.Module,
+		server.Module,
+		management.Module,
+		tracing.Module,
+		fx.Provide(
+			metrics.New,
+			iam.New,
+			info.New,
+			func() server.AuthService {
+				return server.NewNoopAuthService()
+			},
+		),
 		potatofacts.Module,
 	)
 	app.Run()
