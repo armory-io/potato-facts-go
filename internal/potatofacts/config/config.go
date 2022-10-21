@@ -27,16 +27,11 @@ import (
 	"go.uber.org/zap"
 )
 
-type PotatoFactsConfiguration struct {
-	Facts []string
-}
-
 type Configuration struct {
-	Server      server.Configuration
-	Auth        iam.Configuration
-	Metrics     metrics.Configuration
-	Tracing     tracing.Configuration
-	PotatoFacts PotatoFactsConfiguration
+	Server  server.Configuration
+	Auth    iam.Configuration
+	Metrics metrics.Configuration
+	Tracing tracing.Configuration
 }
 
 func ConfigurationProvider(
