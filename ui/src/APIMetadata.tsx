@@ -21,18 +21,12 @@ interface Data {
   data: number[]
 }
 
-const colors = [
-  '#4ac1e0',
-  '#37C666',
-  '#FAB500',
-  '#BC002E',
-  '#1F1F1F'
-]
+const colors = ['#4ac1e0', '#37C666', '#FAB500', '#BC002E', '#1F1F1F']
 
 const numberOfBuckets = 10
 
 const bucketCalls = (callMetadata: ApiCallMetadata[]) => {
-  const now = dayjs().set("seconds", 0).set("milliseconds", 0)
+  const now = dayjs().set('seconds', 0).set('milliseconds', 0)
   const tenMinutesAgo = now.subtract(10, 'minutes')
   const bucketedCallCountsByDeployment: {
     [deploymentId: string]: number[]
@@ -98,27 +92,28 @@ export const APIMetadata = ({ callMetadata }: APIMetadataProps) => {
         data[i] = bucketedCalls[deploymentId][i] / bucketSums[i]
       }
 
-      const color = ofNullable(colorDict[deploymentId]).or(() => {
-        let colorToUse = colors[0]
-        let foundMatch = false
-        for (const c of colors) {
-          if (foundMatch) break
-          for (const key of Object.keys(colorDict)) {
-            const value = colorDict[key]
-            const res = c !== value
-            if (res) {
-              colorToUse = c
-              foundMatch = true
-              break
+      const color = ofNullable(colorDict[deploymentId])
+        .or(() => {
+          let colorToUse = colors[0]
+          let foundMatch = false
+          for (const c of colors) {
+            if (foundMatch) break
+            for (const key of Object.keys(colorDict)) {
+              const value = colorDict[key]
+              const res = c !== value
+              if (res) {
+                colorToUse = c
+                foundMatch = true
+                break
+              }
             }
           }
-        }
-        const update: { [k: string]: string } = {}
-        update[deploymentId] = colorToUse
-        dict = Object.assign({}, dict, update)
-        return of(colorToUse)
-      }).orElseThrow(() => new Error("something bad happened"))
-
+          const update: { [k: string]: string } = {}
+          update[deploymentId] = colorToUse
+          dict = Object.assign({}, dict, update)
+          return of(colorToUse)
+        })
+        .orElseThrow(() => new Error('something bad happened'))
 
       chartData.push({
         label: deploymentId,
@@ -139,7 +134,7 @@ export const APIMetadata = ({ callMetadata }: APIMetadataProps) => {
         <div
           style={{
             display: 'block',
-            height: '250px'
+            minHeight: '300px'
           }}
         ></div>
       </Skeleton>
@@ -149,6 +144,8 @@ export const APIMetadata = ({ callMetadata }: APIMetadataProps) => {
   return (
     <Card>
       <Bar
+        height={'250px'}
+        updateMode={'resize'}
         options={{
           plugins: {
             title: {

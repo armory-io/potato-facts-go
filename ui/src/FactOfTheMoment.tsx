@@ -1,7 +1,10 @@
-import { Card, Text } from '@mantine/core'
+import { Card, Text, MediaQuery } from '@mantine/core'
 import potato from './assets/potato.png'
+import { useMediaQuery } from '@mantine/hooks'
+import { renderIf, renderIfOrElse } from './componentUtils'
 
 export const FactOfTheMoment = ({ fact }: { fact?: string }) => {
+  const isSmallScreen = useMediaQuery('(max-width: 750px)')
   return (
     <Card
       style={{
@@ -13,16 +16,19 @@ export const FactOfTheMoment = ({ fact }: { fact?: string }) => {
       radius="md"
       withBorder
     >
-      <img
-        style={{
-          height: '100px',
-          marginRight: '20px',
-          marginLeft: '5px'
-        }}
-        src={potato}
-        className="img potato"
-        alt="potato img"
-      />
+      {renderIf(
+        !isSmallScreen,
+        <img
+          style={{
+            height: '100px',
+            marginRight: '20px',
+            marginLeft: '5px'
+          }}
+          src={potato}
+          className="img potato"
+          alt="potato img"
+        />
+      )}
       <div
         style={{
           width: '100%',
@@ -33,23 +39,39 @@ export const FactOfTheMoment = ({ fact }: { fact?: string }) => {
           marginTop: '-5px'
         }}
       >
-        <Text size="xl" weight={'bold'} align={'center'}>
-          Potato Fact of the Moment
-        </Text>
-        <Text size="lg" align={'center'}>
-          {fact}
-        </Text>
+        {renderIfOrElse(
+          isSmallScreen,
+          <div>
+            <Text size="lg" weight={'bold'} align={'center'}>
+              Potato Fact of the Moment
+            </Text>
+            <Text size="md" align={'center'}>
+              {fact}
+            </Text>
+          </div>,
+          <div>
+            <Text size="xl" weight={'bold'} align={'center'}>
+              Potato Fact of the Moment
+            </Text>
+            <Text size="lg" align={'center'}>
+              {fact}
+            </Text>
+          </div>
+        )}
       </div>
-      <img
-        style={{
-          height: '100px',
-          marginLeft: '20px',
-          marginRight: '5px'
-        }}
-        src={potato}
-        className="img potato"
-        alt="potato img"
-      />
+      {renderIf(
+        !isSmallScreen,
+        <img
+          style={{
+            height: '100px',
+            marginRight: '20px',
+            marginLeft: '5px'
+          }}
+          src={potato}
+          className="img potato"
+          alt="potato img"
+        />
+      )}
     </Card>
   )
 }

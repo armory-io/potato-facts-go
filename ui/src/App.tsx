@@ -5,6 +5,8 @@ import { APIMetadata } from './APIMetadata'
 import { SimpleGrid, Skeleton, Card, Text } from '@mantine/core'
 import { Optional } from 'typescript-optional'
 import dayjs, { Dayjs } from 'dayjs'
+import { useMediaQuery } from '@mantine/hooks'
+import { renderIfOrElse } from './componentUtils'
 
 const { ofNullable } = Optional
 
@@ -54,20 +56,40 @@ const Placeholder = () => (
   </>
 )
 
+const LargeScreenLayout = ({ callMetadata }: { callMetadata: ApiCallMetadata[] }) => {
+  return (
+    <SimpleGrid cols={2}>
+      <FactCount count={callMetadata.length} />
+      <APIMetadata callMetadata={callMetadata} />
+    </SimpleGrid>
+  )
+}
+
+const SmallScreenLayout = ({ callMetadata }: { callMetadata: ApiCallMetadata[] }) => {
+  return (
+    <div>
+      <SimpleGrid cols={1}>
+        <APIMetadata callMetadata={callMetadata} />
+        <FactCount count={callMetadata.length} />
+      </SimpleGrid>
+    </div>
+  )
+}
+
 const App = () => {
   const [factOfTheMoment, setFactOfTheMoment] = useState<string | undefined>(initialPotatoFact)
   const [lastFactUpdate, setLastFactUpdate] = useState<Dayjs>(dayjs())
-  const [pollRate, setPollRate] = useState<number>(250)
+  const [pollRate, setPollRate] = useState<number>(1000)
   const [callMetadata, setCallMetadata] = useState<ApiCallMetadata[]>([])
+  const isSmallScreen = useMediaQuery('(max-width: 750px)')
 
   useEffect(() => {
     const factPoller = setInterval(() => {
-
       let path = '/api/potato-fact'
-      if (window.location.href.includes("prod/ui")) {
+      if (window.location.href.includes('prod/ui')) {
         path = '/prod/api/potato-fact'
       }
-      if (window.location.href.includes("staging/ui")) {
+      if (window.location.href.includes('staging/ui')) {
         path = '/staging/api/potato-fact'
       }
 
@@ -109,18 +131,22 @@ const App = () => {
 
   document.body.style.backgroundColor = '#39546A'
   return (
-    <div>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center'
+      }}
+    >
       <div
         style={{
-          padding: '25px'
+          padding: '25px',
+          maxWidth: '1200px',
+          width: '100%'
         }}
       >
         <SimpleGrid cols={1}>
           <FactOfTheMoment fact={factOfTheMoment} />
-          <SimpleGrid cols={2}>
-            <FactCount count={callMetadata.length} />
-            <APIMetadata callMetadata={callMetadata} />
-          </SimpleGrid>
+          {renderIfOrElse(isSmallScreen, <SmallScreenLayout callMetadata={callMetadata} />, <LargeScreenLayout callMetadata={callMetadata} />)}
         </SimpleGrid>
       </div>
     </div>
