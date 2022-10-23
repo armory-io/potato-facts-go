@@ -35,4 +35,4 @@ jobs:
           REGISTRY_ORG: armory
           VERSION: ${{ github.event.release.tag_name }}
         run: |
-          make build-linux docker push
+          make build-ui build-linux docker push
