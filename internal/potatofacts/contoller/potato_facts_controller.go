@@ -18,21 +18,26 @@ package contoller
 
 import (
 	"context"
+	"github.com/armory-io/go-commons/metadata"
 	"github.com/armory-io/go-commons/server"
 	"github.com/armory-io/go-commons/server/serr"
 	"github.com/armory-io/potato-facts/internal/potatofacts/service"
 	"go.uber.org/zap"
+	"math/rand"
 	"net/http"
+	"time"
 )
 
 func NewPotatoFactController(
 	log *zap.SugaredLogger,
 	p4o *service.PotatoFactsSvc,
+	app metadata.ApplicationMetadata,
 ) server.Controller {
 	return server.Controller{
 		Controller: &PotatoFactsController{
 			log: log,
 			p4o: p4o,
+			app: app,
 		},
 	}
 }
@@ -40,13 +45,14 @@ func NewPotatoFactController(
 type PotatoFactsController struct {
 	log *zap.SugaredLogger
 	p4o *service.PotatoFactsSvc
+	app metadata.ApplicationMetadata
 }
 
 func (p *PotatoFactsController) Handlers() []server.Handler {
 	return []server.Handler{
 		server.NewHandler(p.factsHandler, server.HandlerConfig{
 			Method:     http.MethodGet,
-			Path:       "/fact",
+			Path:       "/potato-fact",
 			AuthOptOut: true,
 		}),
 	}
@@ -57,5 +63,11 @@ type PotatoFact struct {
 }
 
 func (p *PotatoFactsController) factsHandler(ctx context.Context, _ server.Void) (*server.Response[PotatoFact], serr.Error) {
-	return server.SimpleResponse(PotatoFact{Fact: p.p4o.GetFact()}), nil
+	rand.Seed(time.Now().Unix())
+	return &server.Response[PotatoFact]{
+		Body: PotatoFact{Fact: p.p4o.GetFact()},
+		Headers: map[string][]string{
+			"X-Armory-Deployment-ID": {p.app.DeploymentId},
+		},
+	}, nil
 }

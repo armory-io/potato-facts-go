@@ -42,8 +42,5 @@ var Module = fx.Options(
 		func(configuration Configuration) tracing.Configuration {
 			return configuration.Tracing
 		},
-		func(configuration Configuration) PotatoFactsConfiguration {
-			return configuration.PotatoFacts
-		},
 	),
 )

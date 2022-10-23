@@ -28,7 +28,7 @@ lint:
 
 .PHONY: clean
 clean:
-	rm -fr $(BUILD_DIR)
+	rm -fr $(BUILD_DIR) ui/dist
 
 .PHONY: build-dirs
 build-dirs:
@@ -59,6 +59,11 @@ build-linux: export DIST_DIR=${BUILD_DIR}/dist/$(GOOS)_$(GOARCH)
 build-linux: build-dirs Makefile
 	@echo "Building ${DIST_DIR}/${APP_NAME}..."
 	@go build -ldflags "-X main.version=${VERSION}" -o ${DIST_DIR}/${APP_NAME} cmd/${APP_NAME}/main.go
+
+# TODO build 2x for staging and prod
+.PHONY: build-ui
+build-ui:
+	cd ui && npm ci && npm run build-dist-for-docker
 
 ############
 ## Testing
@@ -137,6 +142,7 @@ debug: SHELL:=/usr/bin/env bash
 debug: export ADDITIONAL_ACTIVE_PROFILES="local-overrides"
 debug: export APPLICATION_NAME=${APP_NAME}
 debug: export APPLICATION_VERSION=${VERSION}
+run: export SERVER_SPA_DIRECTORY=/ui/dist
 debug: build-dirs
 	@echo "Building ${DIST_DIR}/${APP_NAME}..."
 	@go build -ldflags "-X main.version=${VERSION}" -o ${DIST_DIR}/${APP_NAME}-debug -gcflags "all=-N -l" cmd/${APP_NAME}/main.go
@@ -148,8 +154,13 @@ run: SHELL:=/usr/bin/env bash
 run: export ADDITIONAL_ACTIVE_PROFILES="local-overrides"
 run: export APPLICATION_NAME=${APP_NAME}
 run: export APPLICATION_VERSION=${VERSION}
+run: export SERVER.SPA.DIRECTORY=/home/fieldju/dev/armory-io/potato-facts-go/ui/dist
 run: build-dirs
 	@echo "Building ${DIST_DIR}/${APP_NAME}..."
 	@go build -ldflags "-X main.version=${VERSION}" -o ${DIST_DIR}/${APP_NAME} cmd/${APP_NAME}/main.go
 	if [[ -f "${HOME}/.armory/${APP_NAME}.env" ]] ; then echo "sourcing ~/.armory/${APP_NAME}.env"; source "${HOME}/.armory/${APP_NAME}.env" ; fi
 	${DIST_DIR}/${APP_NAME}
+
+.PHONY: run-ui
+run-ui:
+	@cd ui && npm run dev
