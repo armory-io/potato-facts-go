@@ -3,7 +3,7 @@ module github.com/armory-io/potato-facts
 go 1.19
 
 require (
-	github.com/armory-io/go-commons v1.17.1
+	github.com/armory-io/go-commons v1.18.0
 	go.uber.org/fx v1.17.1
 	go.uber.org/zap v1.21.0
 )
@@ -149,5 +149,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
-
-replace github.com/armory-io/go-commons => /home/fieldju/dev/armory-io/go-commons
