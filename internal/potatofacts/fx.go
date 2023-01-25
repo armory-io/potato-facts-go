@@ -18,13 +18,13 @@ package potatofacts
 
 import (
 	"github.com/armory-io/potato-facts/internal/potatofacts/config"
-	"github.com/armory-io/potato-facts/internal/potatofacts/contoller"
+	"github.com/armory-io/potato-facts/internal/potatofacts/controller"
 	"github.com/armory-io/potato-facts/internal/potatofacts/service"
 	"go.uber.org/fx"
 )
 
 var Module = fx.Options(
 	config.Module,
-	contoller.Module,
+	controller.Module,
 	service.Module,
 )

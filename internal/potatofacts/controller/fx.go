@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package contoller
+package controller
 
 import "go.uber.org/fx"
 
