@@ -28,29 +28,29 @@ const numberOfBuckets = 10
 const bucketCalls = (callMetadata: ApiCallMetadata[]) => {
   const now = dayjs().set('seconds', 0).set('milliseconds', 0)
   const tenMinutesAgo = now.subtract(10, 'minutes')
-  const bucketedCallCountsByDeployment: {
-    [deploymentId: string]: number[]
+  const bucketedCallCountsByReplicaSet: {
+    [replicaSetName: string]: number[]
   } = {}
 
   callMetadata.forEach((call) => {
     if (call.time.isBefore(tenMinutesAgo)) {
       return
     }
-    const deploymentId = call.deploymentId
+    const replicaSetName = call.replicaSetName
     const i = calcBucketIndex(call.time, now, tenMinutesAgo)
 
-    ofNullable(bucketedCallCountsByDeployment[deploymentId]).ifPresentOrElse(
+    ofNullable(bucketedCallCountsByReplicaSet[replicaSetName]).ifPresentOrElse(
       (data) => {
         data[i]++
       },
       () => {
         const data = new Array(numberOfBuckets).fill(0)
         data[i] = 1
-        bucketedCallCountsByDeployment[deploymentId] = data
+        bucketedCallCountsByReplicaSet[replicaSetName] = data
       }
     )
   })
-  return bucketedCallCountsByDeployment
+  return bucketedCallCountsByReplicaSet
 }
 
 const calcBucketIndex = (date: Dayjs, now: Dayjs, tenMinutesAgo: Dayjs): number => {
@@ -82,17 +82,17 @@ export const APIMetadata = ({ callMetadata }: APIMetadataProps) => {
     let dict = Object.assign({}, colorDict)
 
     const bucketedCalls = bucketCalls(callMetadata)
-    const deployments = Object.keys(bucketedCalls)
-    const bucketSums = calcBucketSums(deployments, bucketedCalls)
+    const replicaSets = Object.keys(bucketedCalls)
+    const bucketSums = calcBucketSums(replicaSets, bucketedCalls)
 
     const chartData: Data[] = []
-    deployments.forEach((deploymentId) => {
+    replicaSets.forEach((replicaSetName) => {
       const data: number[] = new Array(numberOfBuckets).fill(0)
       for (let i = 0; i < numberOfBuckets; i++) {
-        data[i] = bucketedCalls[deploymentId][i] / bucketSums[i]
+        data[i] = bucketedCalls[replicaSetName][i] / bucketSums[i]
       }
 
-      const color = ofNullable(colorDict[deploymentId])
+      const color = ofNullable(colorDict[replicaSetName])
         .or(() => {
           let colorToUse = colors[0]
           let foundMatch = false
@@ -109,14 +109,14 @@ export const APIMetadata = ({ callMetadata }: APIMetadataProps) => {
             }
           }
           const update: { [k: string]: string } = {}
-          update[deploymentId] = colorToUse
+          update[replicaSetName] = colorToUse
           dict = Object.assign({}, dict, update)
           return of(colorToUse)
         })
         .orElseThrow(() => new Error('something bad happened'))
 
       chartData.push({
-        label: deploymentId,
+        label: replicaSetName,
         backgroundColor: color,
         borderColor: 'black',
         borderWidth: 1,

@@ -67,7 +67,7 @@ func (p *PotatoFactsController) factsHandler(ctx context.Context, _ server.Void)
 	return &server.Response[PotatoFact]{
 		Body: PotatoFact{Fact: p.p4o.GetFact()},
 		Headers: map[string][]string{
-			"X-Armory-Deployment-ID": {p.app.DeploymentId},
+			"X-Replica-Set-Name": {p.app.Replicaset},
 		},
 	}, nil
 }
