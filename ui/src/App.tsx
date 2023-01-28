@@ -22,7 +22,7 @@ function ifOkOrElse<T>(res: Response, okFn: (typedRes: T) => void, notOkFn: () =
 
 export interface ApiCallMetadata {
   succeeded: boolean
-  deploymentId: string
+  replicaSetName: string
   time: Dayjs
 }
 
@@ -95,13 +95,13 @@ const App = () => {
 
       fetch(path).then((response) => {
         const now = dayjs()
-        const deploymentId = ofNullable(response.headers.get('X-Armory-Deployment-ID'))
+        const replicaSetName = ofNullable(response.headers.get('X-Replica-Set-Name'))
         ifOkOrElse<FactWrapper>(
           response,
           (res) => {
             callMetadata.push({
               succeeded: true,
-              deploymentId: deploymentId.get(),
+              replicaSetName: replicaSetName.get(),
               time: now
             })
             setCallMetadata(Object.assign([], callMetadata))
@@ -111,10 +111,10 @@ const App = () => {
             }
           },
           () => {
-            deploymentId.ifPresent((id) => {
+            replicaSetName.ifPresent((name) => {
               callMetadata.push({
                 succeeded: false,
-                deploymentId: id,
+                replicaSetName: name,
                 time: now
               })
               setCallMetadata(Object.assign([], callMetadata))
