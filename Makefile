@@ -82,12 +82,16 @@ docker: build-linux
 	@docker build \
 	-t $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:$(VERSION) \
 	-t $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:latest \
+	-t $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:v1 \
+	-t $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:v2 \
 	-f Dockerfile .
 
 .PHONY: push
 push:
 	@docker push $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:$(VERSION)
 	@docker push $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:latest
+	@docker push $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:v1
+	@docker push $(REGISTRY)/$(REGISTRY_ORG)/${APP_NAME}:v2
 
 #############
 ## Utilities
