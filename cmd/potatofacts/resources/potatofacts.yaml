@@ -11,5 +11,4 @@ server:
     prefix: /api
   spa:
     enabled: true
-    prefix: /ui
-    directory: /opt/go-application/ui/staging
+    prefix: ''
