@@ -52,8 +52,14 @@ func (p *PotatoFactsController) Handlers() []server.Handler {
 	return []server.Handler{
 		server.NewHandler(p.factsHandler, server.HandlerConfig{
 			Method:     http.MethodGet,
-			Path:       "/potato-fact",
+			Path:       "/api/potato-fact",
 			AuthOptOut: true,
+		}),
+		server.NewHandler(p.redirectToUi, server.HandlerConfig{
+			Method:     http.MethodGet,
+			Path:       "/",
+			AuthOptOut: true,
+			StatusCode: http.StatusMovedPermanently,
 		}),
 	}
 }
@@ -68,6 +74,15 @@ func (p *PotatoFactsController) factsHandler(ctx context.Context, _ server.Void)
 		Body: PotatoFact{Fact: p.p4o.GetFact()},
 		Headers: map[string][]string{
 			"X-Replica-Set-Name": {p.app.Replicaset},
+		},
+	}, nil
+}
+
+func (*PotatoFactsController) redirectToUi(_ context.Context, _ server.Void) (*server.Response[[]byte], serr.Error) {
+	return &server.Response[[]byte]{
+		Body: []byte{},
+		Headers: map[string][]string{
+			"Location": {"/ui"},
 		},
 	}, nil
 }
