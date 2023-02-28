@@ -101,7 +101,7 @@ const App = () => {
           (res) => {
             callMetadata.push({
               succeeded: true,
-              replicaSetName: replicaSetName.get(),
+              replicaSetName: replicaSetName.orElse('unset'),
               time: now
             })
             setCallMetadata(Object.assign([], callMetadata))
