@@ -25,6 +25,8 @@ import (
 	"github.com/armory-io/go-commons/tracing"
 	c "github.com/armory-io/go-commons/typesafeconfig"
 	"go.uber.org/zap"
+	"os"
+	"path/filepath"
 )
 
 type Configuration struct {
@@ -39,9 +41,18 @@ func ConfigurationProvider(
 	resources embed.FS,
 	app metadata.ApplicationMetadata,
 ) (*Configuration, error) {
+	explicitProperties := make(map[string]any)
+	if app.Environment == "local" {
+		pwd, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		explicitProperties["server.spa.directory"] = filepath.Join(pwd, "ui", "dist", "prod")
+	}
 	return c.ResolveConfiguration[Configuration](logger,
-		c.WithBaseConfigurationNames(app.Name),
+		c.WithBaseConfigurationNames("potatofacts"),
 		c.WithActiveProfiles(app.Environment),
 		c.WithEmbeddedFilesystems(&resources),
+		c.WithExplicitProperties(explicitProperties),
 	)
 }
