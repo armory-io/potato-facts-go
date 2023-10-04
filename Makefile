@@ -146,7 +146,6 @@ debug: SHELL:=/usr/bin/env bash
 debug: export ADDITIONAL_ACTIVE_PROFILES="local-overrides"
 debug: export APPLICATION_NAME=${APP_NAME}
 debug: export APPLICATION_VERSION=${VERSION}
-run: export SERVER_SPA_DIRECTORY=/ui/dist
 debug: build-dirs
 	@echo "Building ${DIST_DIR}/${APP_NAME}..."
 	@go build -ldflags "-X main.version=${VERSION}" -o ${DIST_DIR}/${APP_NAME}-debug -gcflags "all=-N -l" cmd/${APP_NAME}/main.go
@@ -158,7 +157,6 @@ run: SHELL:=/usr/bin/env bash
 run: export ADDITIONAL_ACTIVE_PROFILES="local-overrides"
 run: export APPLICATION_NAME=${APP_NAME}
 run: export APPLICATION_VERSION=${VERSION}
-run: export SERVER.SPA.DIRECTORY=/home/fieldju/dev/armory-io/potato-facts-go/ui/dist
 run: build-dirs
 	@echo "Building ${DIST_DIR}/${APP_NAME}..."
 	@go build -ldflags "-X main.version=${VERSION}" -o ${DIST_DIR}/${APP_NAME} cmd/${APP_NAME}/main.go
