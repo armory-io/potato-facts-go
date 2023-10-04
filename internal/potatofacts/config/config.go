@@ -36,18 +36,24 @@ type Configuration struct {
 	Tracing tracing.Configuration
 }
 
+const uiFilesLocation = "server.spa.directory"
+
 func ConfigurationProvider(
-	logger *zap.SugaredLogger,
-	resources embed.FS,
-	app metadata.ApplicationMetadata,
+  logger *zap.SugaredLogger,
+  resources embed.FS,
+  app metadata.ApplicationMetadata,
 ) (*Configuration, error) {
 	explicitProperties := make(map[string]any)
+	// in case of local run or when docker image is used in k8s manifest without providing APPLICATION_ENVIRONMENT env variable - try using the default location (current workdir + ui/dist/prod sub folder)
 	if app.Environment == "local" {
 		pwd, err := os.Getwd()
 		if err != nil {
 			return nil, err
 		}
-		explicitProperties["server.spa.directory"] = filepath.Join(pwd, "ui", "dist", "prod")
+
+		location := filepath.Join(pwd, "ui", "dist", "prod")
+		logger.Infof("using %s as a value for %s", location, uiFilesLocation)
+		explicitProperties[uiFilesLocation] = location
 	}
 	return c.ResolveConfiguration[Configuration](logger,
 		c.WithBaseConfigurationNames("potatofacts"),

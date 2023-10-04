@@ -1,3 +1,0 @@
-server:
-  spa:
-    directory: /opt/go-application/ui/staging

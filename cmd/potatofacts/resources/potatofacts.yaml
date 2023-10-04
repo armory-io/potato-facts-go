@@ -12,3 +12,4 @@ server:
   spa:
     enabled: true
     prefix: /ui
+    directory: /opt/go-application/ui/dist/prod #default ui files location whenever any environment variable is set (prod, staging, blue-green-prod, etc..) otherwise - check config/config.go how location is calculated
